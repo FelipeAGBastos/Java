@@ -1,0 +1,174 @@
+Olá\!
+
+Seu código teve uma grande melhoria\! Você corrigiu o erro de inicialização dos vetores e implementou a lógica de validação para o número da equipe, incluindo a verificação de duplicidade. Isso mostra um avanço significativo.
+
+No entanto, o código **ainda não está completo** e não atende a todos os requisitos. Vamos analisar o que falta e, em seguida, apresentarei uma versão totalmente funcional.
+
+### Análise do seu Código Atual
+
+1.  **Falta de Validação da Nota de Design:**
+    Você lê a nota com `notasEquipe[i]=entrada.nextDouble();`, mas não verifica se o valor está entre 0 e 10, conforme o requisito.
+
+2.  **Lógica da Situação de Batalha (Ponto de Atenção):**
+    O vetor `situacaoBatalha` é declarado, mas dentro do loop de combates, o valor `situacaoBatalha[i]` é sobrescrito a cada combate. Isso significa que ele sempre vai armazenar apenas o resultado do **último** combate. Embora a pontuação total esteja sendo calculada corretamente (usando `pontos[i] +=...`), o vetor `situacaoBatalha` não está armazenando a informação de forma útil. Para o problema proposto, ele nem é necessário, já que os pontos são calculados na hora.
+
+3.  **Falta de Ordenação (Ranking) e Desempate:**
+    O principal requisito ainda não foi implementado. Após coletar todos os dados, o programa não ordena as equipes com base nos pontos (e na nota de design em caso de empate). O código para a classificação e a exibição do ranking final está faltando.
+
+### Versão Corrigida e Completa
+
+Abaixo está o seu código com as partes que faltavam adicionadas e comentadas para facilitar a compreensão. A estrutura de coleta de dados é a sua, com a adição da validação da nota de design. A parte de ordenação e exibição foi adicionada no final.
+
+```java
+import java.util.Scanner;
+
+public class Sprint03 {
+    public static void main(String[] args) {
+        Scanner entrada = new Scanner(System.in);
+
+        int qtdEquipes = 0;
+
+        System.out.println("Informe a quantidade de equipes participantes da competição:");
+        qtdEquipes = entrada.nextInt();
+
+        // Vetores criados APÓS a leitura da quantidade de equipes
+        int[] numEquipes = new int[qtdEquipes];
+        Double[] notasEquipe = new Double[qtdEquipes];
+        int[] pontosTotais = new int[qtdEquipes];
+
+        // Loop para coletar dados de cada equipe
+        for (int i = 0; i < qtdEquipes; i++) {
+            System.out.println("\n--- Cadastro da Equipe " + (i + 1) + " ---");
+            
+            // Lógica para validar número da equipe e evitar repetições
+            boolean verificador = false;
+            while (!verificador) {
+                System.out.print("Digite o numero da equipe (entre 10 a 99): ");
+                int resp = entrada.nextInt();
+                
+                if (resp < 10 || resp > 99) {
+                    System.out.println("Erro: O numero da equipe deve ser entre 10 a 99.");
+                } else {
+                    boolean repetido = false;
+                    for (int j = 0; j < i; j++) {
+                        if (numEquipes[j] == resp) {
+                            System.out.println("O numero " + resp + " já foi utilizado, tente outro numero novamente!");
+                            repetido = true;
+                            break;
+                        }
+                    }
+                    if (!repetido) {
+                        numEquipes[i] = resp;
+                        verificador = true;
+                    }
+                }
+            }
+
+            // Lógica para validar a nota de design (ADICIONADO)
+            verificador = false;
+            while (!verificador) {
+                System.out.print("Digite a nota de design do robô (entre 0 e 10): ");
+                double nota = entrada.nextDouble();
+                if (nota < 0.0 || nota > 10.0) {
+                    System.out.println("Erro: A nota deve ser entre 0 e 10. Tente novamente.");
+                } else {
+                    notasEquipe[i] = nota;
+                    verificador = true;
+                }
+            }
+
+            // Lógica para coletar resultados de N combates e somar os pontos
+            System.out.print("Digite a quantidade de combates realizados pela equipe " + (i + 1) + ": ");
+            int qtdCombates = entrada.nextInt();
+            
+            pontosTotais[i] = 0; // Inicializa a pontuação da equipe
+
+            for (int j = 0; j < qtdCombates; j++) {
+                boolean verificadorBatalha = false;
+                while (!verificadorBatalha) {
+                    System.out.print("Digite o resultado do combate " + (j + 1) + " (V-Vitória, E-Empate, D-Derrota): ");
+                    String resultado = entrada.next();
+                    
+                    if (resultado.equalsIgnoreCase("V")) {
+                        pontosTotais[i] += 7;
+                        verificadorBatalha = true;
+                    } else if (resultado.equalsIgnoreCase("E")) {
+                        pontosTotais[i] += 4;
+                        verificadorBatalha = true;
+                    } else if (resultado.equalsIgnoreCase("D")) {
+                        // pontosTotais[i] += 0; não precisa somar, mas a lógica está correta
+                        verificadorBatalha = true;
+                    } else {
+                        System.out.println("Entrada inválida! Digite V, E ou D.");
+                    }
+                }
+            }
+        } // Fim do loop de cadastro de equipes
+
+        // --- INÍCIO DA LÓGICA DE ORDENAÇÃO E RANKING ---
+        // Algoritmo de ordenação Bubble Sort para classificar as equipes
+        // A ordenação é baseada nos pontos e no critério de desempate (nota de design)
+        
+        for (int i = 0; i < qtdEquipes - 1; i++) {
+            for (int j = 0; j < qtdEquipes - i - 1; j++) {
+                boolean precisaTrocar = false;
+
+                // 1. Critério: Ordenar por pontuação (maior para menor)
+                if (pontosTotais[j] < pontosTotais[j + 1]) {
+                    precisaTrocar = true;
+                } 
+                // 2. Critério de Desempate: Se as pontuações são iguais, usa a nota de design
+                else if (pontosTotais[j] == pontosTotais[j + 1]) {
+                    if (notasEquipe[j] < notasEquipe[j + 1]) {
+                        precisaTrocar = true;
+                    }
+                }
+
+                if (precisaTrocar) {
+                    // Troca os pontos
+                    int tempPontos = pontosTotais[j];
+                    pontosTotais[j] = pontosTotais[j + 1];
+                    pontosTotais[j + 1] = tempPontos;
+
+                    // Troca as notas de design
+                    double tempNota = notasEquipe[j];
+                    notasEquipe[j] = notasEquipe[j + 1];
+                    notasEquipe[j + 1] = tempNota;
+
+                    // Troca os números das equipes
+                    int tempNumero = numEquipes[j];
+                    numEquipes[j] = numEquipes[j + 1];
+                    numEquipes[j + 1] = tempNumero;
+                }
+            }
+        }
+
+        // Exibir o ranking final
+        System.out.println("\n======================================");
+        System.out.println("    RANKING FINAL DA COMPETIÇÃO");
+        System.out.println("======================================");
+        System.out.printf("%-5s %-10s %-10s %-10s\n", "Pos.", "Equipe", "Pontos", "Nota Design");
+        System.out.println("--------------------------------------");
+
+        for (int i = 0; i < qtdEquipes; i++) {
+            System.out.printf("%-5d %-10d %-10d %-10.2f\n",
+                    (i + 1),
+                    numEquipes[i],
+                    pontosTotais[i],
+                    notasEquipe[i]);
+        }
+        System.out.println("======================================");
+
+        entrada.close();
+    }
+}
+```
+
+### Resumo das Melhorias
+
+  * **Validação da Nota de Design:** Adicionei um laço `while` para garantir que a nota de design esteja entre 0 e 10.
+  * **Lógica de Ordenação:** Incluí o algoritmo de ordenação Bubble Sort, que é fácil de entender, para classificar as equipes.
+  * **Critério de Desempate Implementado:** Dentro do algoritmo de ordenação, adicionei a lógica para, em caso de pontuações iguais, usar a nota de design como desempate.
+  * **Exibição do Ranking:** Adicionei a parte final que percorre os vetores ordenados e exibe o ranking de forma clara e formatada.
+
+Com essas alterações, o programa agora atende a todos os requisitos do problema. Continue praticando, você está no caminho certo\!
