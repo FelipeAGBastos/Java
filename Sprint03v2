@@ -1,0 +1,98 @@
+import java.util.Scanner;
+public class Sprint03 {
+    public static void main(String[] args) {
+        Scanner entrada = new Scanner(System.in);
+
+        int qtdComp = 0;
+       
+
+        System.out.println("Informe quantidade de equipes participantes da competição:");
+        qtdComp = entrada.nextInt();
+
+        int[] numEquipes = new int[qtdComp];
+        Double[] notasEquipe = new Double[qtdComp];
+        String[] situacaoBatalha = new String[qtdComp];
+        int[] pontos= new int[qtdComp];
+        boolean verificador = false, verificadorBatalha=false;
+        int resp = 0;
+        int qtdCombates=0, verificadorRepitido=0;
+        Double notas = 0.0;
+
+
+
+        for (int i = 0; i < qtdComp; i++) {
+            verificador=false;
+            while (!verificador) {
+                verificadorRepitido=0;
+                System.out.println("Digite o numero da equipe " + i + "\n só é permitido numeros entre 10 a 99");
+                resp = entrada.nextInt();
+                if (resp < 10 || resp > 99) {
+                    System.out.println("Erro o numero da equipe deve ser entre 10 a 99");
+                    verificadorRepitido++;
+                }else{
+                    for (int j = 0; j < i; j++) {
+                        if (numEquipes[j] == resp) {
+                        System.out.println("O numero " + resp +" já foi utilizado, tente outro numero novamente!");
+                        verificadorRepitido++;
+                        break;
+                    }
+                }
+
+                if(verificadorRepitido == 0){
+                    numEquipes[i] = resp;
+                    verificador=true;
+                }
+               
+
+               
+            }  
+
+       
+            System.out.println("Digite a nota da equipe para o desing do robô"+ i);
+            notasEquipe[i]=entrada.nextDouble();
+
+            System.out.println("Digite a quantidade de combates realizados pela equipe " + i);
+            qtdCombates = entrada.nextInt();
+
+
+
+
+           
+            for (int j = 0; j < qtdCombates; j++) {
+                verificadorBatalha=false;
+                while (!verificadorBatalha) {
+                    System.out.println("Digite o resultado do combate (V)-Vitoria, (E)-Empate, (D)-Derrota da equipe " + i);
+                    situacaoBatalha[i] = entrada.next();
+                    if (situacaoBatalha[i].equalsIgnoreCase("V")) {
+                        pontos[i] += 7;
+                        verificadorBatalha=true;
+                    } else if (situacaoBatalha[i].equalsIgnoreCase("E")) {
+                        pontos[i] += 4;
+                        verificadorBatalha=true;
+                    } else if (situacaoBatalha[i].equalsIgnoreCase("D")){
+                        pontos[i] += 0;
+                        verificadorBatalha=true;
+                    }else{
+                        System.out.println("Entrada invalida!!! Digite o resultado do combate (V)-Vitoria, (E)-Empate, (D)-Derrota da equipe");
+                    }    
+                }
+            }
+        }
+
+
+        //resultados
+
+     
+     
+           
+       
+
+
+
+       
+
+
+
+
+    }
+}
